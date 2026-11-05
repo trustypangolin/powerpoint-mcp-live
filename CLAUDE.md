@@ -57,21 +57,34 @@ pip install -e ".[dev]"
 # Run the server directly against source (no install needed)
 uv run powerpoint_mcp_server.py
 
-# Syntax-check everything (no test suite yet — see Roadmap)
+# Syntax-check everything
 python -m py_compile powerpoint_document_server/**/*.py
+
+# tools/list shape, payload budget and toolset tests (no PowerPoint needed)
+uv run --extra dev pytest
 ```
 
-There is no automated test suite yet. Like `mcp-server-powerpoint` and `mcp-server-excel`, COM
-automation isn't meaningfully mockable — real verification means opening PowerPoint with a
-presentation and exercising tools against it by hand.
+`tests/test_tools_list.py` covers registration only: descriptions, schemas, hints, payload size
+and `POWERPOINT_MCP_TOOLSETS` filtering. It never touches COM. The tools' behavior has no automated
+tests. Like `mcp-server-powerpoint` and `mcp-server-excel`, COM automation isn't meaningfully
+mockable — real verification means opening PowerPoint with a presentation and exercising tools
+against it by hand.
 
 ## Architecture
 
 ```
 powerpoint_document_server/
   main.py               FastMCP server — every tool registered here, description=impl.__doc__
-                         pulls each tool's docstring in as its MCP description (single source
-                         of truth — write real docstrings, don't duplicate them in main.py)
+                         pulls each tool's docstring in (single source of truth — write real
+                         docstrings, don't duplicate them in main.py)
+  tool_metadata.py       Turns those Google-style docstrings into compact metadata: the prose
+                         (plus any Returns: caveat) becomes the description, and each Args: entry
+                         becomes that parameter's schema description. Boilerplate presentation/
+                         slide_index/shape docs are dropped; SERVER_INSTRUCTIONS states them once.
+                         A docstring Args: entry that names no real parameter fails at startup.
+                         Ported from excel-mcp-live — keep the two in step.
+  toolsets.py            POWERPOINT_MCP_TOOLSETS filtering. Every new tool must be added to exactly
+                         one group in TOOL_GROUPS, or registration raises KeyError.
   defaults.py            MCP_AUTHOR / MCP_AUTHOR_INITIALS env vars → comment author defaults
   core/
     powerpoint_com.py     COM attach layer: get_powerpoint_app(), find_presentation(),
@@ -103,6 +116,6 @@ raise).
   out of scope; that's `mcp-server-powerpoint`.
 - No explicit "close presentation" or "detach" tool.
 - No macOS support.
-- No automated tests.
+- No automated tests of tool behavior (only of registration, see Commands).
 - `export_slide_to_image` and the comment tools are unverified against a real PowerPoint install —
   test these first if you touch them.

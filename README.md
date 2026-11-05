@@ -81,6 +81,17 @@ If you installed it with `pip install -e .` instead, you can use the console scr
 `MCP_AUTHOR` / `MCP_AUTHOR_INITIALS` set the author name/initials attached to new slide comments
 (default: `"Author"` / `""`).
 
+### Limit tool discovery
+
+Set `POWERPOINT_MCP_TOOLSETS` in the server's `env` to a comma-separated list of groups to register
+only those tools, e.g. `"POWERPOINT_MCP_TOOLSETS": "slides,shapes"`. Groups are combined as a
+union. Available groups are `presentations`, `slides`, `shapes` (shapes and text), `formatting`,
+`notes`, `export` and `comments`, matching the sections of the table below. Each tool is in exactly
+one group. `list_open_presentations` is always registered. Unset, empty or `all` registers every
+tool. An unknown group name stops the server at startup. Restart the server after changing this
+setting. Filtering only controls which tools are listed and callable. It is not a security
+boundary.
+
 ## Supported functions
 
 Every tool operates on a presentation that's already open in PowerPoint. `presentation` is

@@ -12,7 +12,7 @@ def list_shapes(presentation: str = None, slide_index: int = None) -> str:
         slide_index: 1-based slide index (required).
 
     Returns:
-        JSON with each shape's 1-based index, name, MsoShapeType, position/
+        JSON with each shape's 1-based index, name, MsoShapeType, position and
         size (points), and text.
     """
     if sys.platform != "win32":
