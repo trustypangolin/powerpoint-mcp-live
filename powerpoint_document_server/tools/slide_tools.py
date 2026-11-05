@@ -48,8 +48,7 @@ def add_slide(presentation: str = None, index: int = None, layout: str = "text")
     Args:
         presentation: Presentation name or path (None = active presentation).
         index: 1-based position to insert at (None = append at the end).
-        layout: One of "title", "text", "two_content", "title_only", "blank"
-                (default: "text").
+        layout: One of "title", "text", "two_content", "title_only", "blank".
 
     Returns:
         JSON with the new slide's index.
